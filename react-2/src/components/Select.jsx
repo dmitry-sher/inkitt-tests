@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 //  possible values are shown in menu
 
 let _throttle
+let _blurThrottle
 const _throttleTimeout = 150
 const keyUp = 38
 const keyDown = 40
@@ -83,7 +84,10 @@ export default class Select extends Component {
     }
 
     onBlur = (e) => {
-        this.setState({ focused: false, opened: false })
+        clearTimeout(_blurThrottle)
+        _blurThrottle = setTimeout(() =>
+            this.setState({ focused: false, opened: false })
+        , _throttleTimeout)
     }
 
     onKeyDown = (e) => {
@@ -109,7 +113,7 @@ export default class Select extends Component {
                 // this.setState({
                 //     focused: false
                 // }, () => {
-                    
+
                 // })
             }
             return

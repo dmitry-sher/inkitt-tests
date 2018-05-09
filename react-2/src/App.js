@@ -72,6 +72,11 @@ class App extends Component {
             <div className="flexy">
               <div className="left">
                 Here's a little example of react-select that i've made.<br />
+                Features:
+                <ul>
+                  <li>simple list filtering</li>
+                  <li>keyboard navigation</li>
+                </ul>
               </div>
               <div className="right">
                 <Select
