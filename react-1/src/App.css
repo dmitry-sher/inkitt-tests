@@ -1,0 +1,12 @@
+.flexy {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.flexy > div {
+  width: 50%;
+  box-sizing: border-box;
+  padding: 1rem;
+}
