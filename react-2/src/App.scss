@@ -1,0 +1,64 @@
+.flexy {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  &>div {
+    width: 50%;
+    box-sizing: border-box;
+    padding: 1rem;
+  }
+}
+
+.select {
+  position: relative;
+
+  .input {
+    border: 1px solid black;
+    width: 20rem;
+    input {
+      width: calc(20rem - 2px);
+      opacity: 0;
+      border-width: 0;
+      outline: none;
+      &:focus {
+        outline: none;
+      }
+    }
+    &.open {
+      input {
+        opacity: 1;
+      }
+    }
+  }
+
+  .label {
+    position: absolute;
+    margin: 0.2rem 0 0 0.2rem;
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .menu {
+    display: none;
+    position: absolute;
+    &>div {
+      cursor: pointer;
+      border-bottom: 1px dashed bisque;
+      &:last-child {
+        border-width: 0;
+      }
+      &.selected {
+        background: bisque;
+      }
+    }
+    &.open {
+      display: block;
+      max-height: 20rem;
+      width: 20rem;
+      overflow-y: scroll;
+    }
+  }
+}

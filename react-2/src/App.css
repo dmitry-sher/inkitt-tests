@@ -1,0 +1,44 @@
+.flexy {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start; }
+  .flexy > div {
+    width: 50%;
+    box-sizing: border-box;
+    padding: 1rem; }
+
+.select {
+  position: relative; }
+  .select .input {
+    border: 1px solid black;
+    width: 20rem; }
+    .select .input input {
+      width: calc(20rem - 2px);
+      opacity: 0;
+      border-width: 0;
+      outline: none; }
+      .select .input input:focus {
+        outline: none; }
+    .select .input.open input {
+      opacity: 1; }
+  .select .label {
+    position: absolute;
+    margin: 0.2rem 0 0 0.2rem; }
+    .select .label.hidden {
+      display: none; }
+  .select .menu {
+    display: none;
+    position: absolute; }
+    .select .menu > div {
+      cursor: pointer;
+      border-bottom: 1px dashed bisque; }
+      .select .menu > div:last-child {
+        border-width: 0; }
+      .select .menu > div.selected {
+        background: bisque; }
+    .select .menu.open {
+      display: block;
+      max-height: 20rem;
+      width: 20rem;
+      overflow-y: scroll; }
