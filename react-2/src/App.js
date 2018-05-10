@@ -56,7 +56,7 @@ const states = [
     'Wyoming'
 ]
 
-const statesOptions = states.map(s => ({ value: s, text: s }))
+const statesOptions = states.map((s, i) => ({ value: i, text: s }))
 
 class App extends Component {
     state = {

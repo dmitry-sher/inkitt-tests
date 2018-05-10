@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import SelectMenu from './SelectMenu'
 
 // The arch is simple:
 //  we show input field for user to start entering
@@ -9,10 +10,6 @@ import PropTypes from 'prop-types'
 let _throttle
 let _blurThrottle
 const _throttleTimeout = 150
-const keyUp = 38
-const keyDown = 40
-const keyEnter = 13
-const keyEsc = 27
 
 function escapeRegExp(str) {
     return str.replace(/[.^$*+?()[{\\|\]-]/g, '\\$&')
@@ -31,8 +28,7 @@ export default class Select extends Component {
         search: '',
         value: '',
         focused: false,
-        filteredOptions: [],
-        selectedIndex: -1
+        filteredOptions: []
     }
 
     componentDidMount () {
@@ -48,7 +44,7 @@ export default class Select extends Component {
         let optionsArray = (typeof options === 'function') ? options() : options
         if (filter) {
             const re = new RegExp(escapeRegExp(filter), 'i')
-            optionsArray = options.filter(option => option.value.match(re))
+            optionsArray = options.filter(option => option.text.match(re))
         }
         return optionsArray
     }
@@ -69,13 +65,15 @@ export default class Select extends Component {
         })
     }
 
-    onChooseOption = (option, cb) => {
+    onChooseOption = (option) => {
         if (this.props.onChange) {
-            this.props.onChange(option.value)
-            this.setState({ opened: false }, cb)
+            this.props.onChange(option)
+            this.setState({ opened: false })
+            if (this._input) this._input.blur()
             return
         }
-        this.setState({ value: option.value }, cb)
+        this.setState({ value: option })
+        if (this._input) this._input.blur()
     }
 
     onFocus = (e) => {
@@ -90,48 +88,20 @@ export default class Select extends Component {
         , _throttleTimeout)
     }
 
-    onKeyDown = (e) => {
-        const { selectedIndex, value, filteredOptions } = this.state
-        if (e.keyCode === keyDown) {
-            if (!value) {
-                // we simply open menu
-                this.setState({ opened: true })
-            }
-            this.setState({ selectedIndex: Math.min(selectedIndex + 1, filteredOptions.length - 1) })
-            return
-        }
-        if (e.keyCode === keyUp) {
-            this.setState({ selectedIndex: Math.max(selectedIndex - 1, 0) })
-            return
-        }
-        if (e.keyCode === keyEnter) {
-            // choose option
-            if (selectedIndex > -1 && filteredOptions[selectedIndex]) {
-                this.onChooseOption(filteredOptions[selectedIndex], () => {
-                    if (this._input) this._input.blur()
-                })
-                // this.setState({
-                //     focused: false
-                // }, () => {
+    onOpenMenu = () => this.setState({ opened: true })
 
-                // })
-            }
-            return
-        }
-        if (e.keyCode === keyEsc) {
-            // clear everything
-            this.onChangeReal('', false)
-            return
-        }
-        console.log('onkeydown ', e.keyCode)
-    }
+    onClear = () => this.onChangeReal('', false)
 
     onLabelClick = (e) => {
         if (this._input) this._input.focus()
     }
 
+    onKeyDown = (e) => {
+        if (this._menu) this._menu.onKeyDown(e)
+    }
+
     render() {
-        const { value, filteredOptions, opened, focused, selectedIndex } = this.state
+        const { value, filteredOptions, opened, focused } = this.state
 
         const menuClasses = ['menu']
         if (opened) menuClasses.push('open')
@@ -144,7 +114,7 @@ export default class Select extends Component {
 
         return (
           <div className="select">
-            <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value}</div>
+            <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value && value.text}</div>
             <div className={inputClasses.join(' ')}>
                 <input
                     type="text"
@@ -158,15 +128,15 @@ export default class Select extends Component {
                 />
             </div>
 
-            <div className={menuClasses.join(' ')}>
-            {filteredOptions.map((option, i) => (
-                <div
-                    onClick={() => this.onChooseOption(option)}
-                    key={`item-${option.value}`}
-                    className={i === selectedIndex ? 'selected' : ''}
-                >{option.text}</div>
-            ))}
-            </div>
+            <SelectMenu
+                onChooseOption={this.onChooseOption}
+                options={filteredOptions}
+                opened={opened}
+                value={value}
+                onOpenMenu={this.onOpenMenu}
+                onClear={this.onClear}
+                ref={c => this._menu = c}
+            />
           </div>
         )
     }
