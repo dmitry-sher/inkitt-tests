@@ -42,3 +42,12 @@
       max-height: 20rem;
       width: 20rem;
       overflow-y: scroll; }
+
+.spinner {
+  animation: rotation 2s infinite linear; }
+
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg); }
+  to {
+    -webkit-transform: rotate(359deg); } }

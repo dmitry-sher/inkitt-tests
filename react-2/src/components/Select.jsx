@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import SelectMenu from './SelectMenu'
+import Icon from './Icon'
 
 // The arch is simple:
 //  we show input field for user to start entering

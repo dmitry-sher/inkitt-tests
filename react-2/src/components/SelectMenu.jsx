@@ -11,6 +11,7 @@ export default class SelectMenu extends Component {
         onChooseOption: PropTypes.func.isRequired,
         options: PropTypes.array.isRequired,
         opened: PropTypes.bool.isRequired,
+        loading: PropTypes.bool.isRequired,
         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         onOpenMenu: PropTypes.func.isRequired,
         onClear: PropTypes.func.isRequired
