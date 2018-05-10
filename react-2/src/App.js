@@ -16,35 +16,37 @@ class App extends Component {
     render() {
         const { value1, value2 } = this.state
         return (
-          <div className="App">
-            <div className="flexy">
-              <div className="left">
-                Here's a little example of react-select that i've made.<br />
-                Features:
-                <ul>
-                  <li>simple list filtering</li>
-                  <li>keyboard navigation</li>
-                </ul>
-              </div>
-              <div className="right">
-                <Select
-                  name="value1"
-                  value={value1}
-                  onChange={this.onChange}
-                  options={statesOptions}
-                  title="Synced"
-                />
+            <div className="App">
+                <div className="flexy">
+                    <div className="left">
+                        Here's a little example of react-select that i've made.<br />
+                        Features:
+                        <ul>
+                            <li>simple list filtering</li>
+                            <li>keyboard navigation</li>
+                            <li>async / FP mode</li>
+                            <li>simple caching/memoization</li>
+                        </ul>
+                    </div>
+                    <div className="right">
+                        <Select
+                            name="value1"
+                            value={value1}
+                            onChange={this.onChange}
+                            options={statesOptions}
+                            title="Synced"
+                        />
 
-                <Select
-                  name="value2"
-                  value={value2}
-                  onChange={this.onChange}
-                  options={getFilteredOptions}
-                  title="Async"
-                />
-              </div>
+                        <Select
+                            name="value2"
+                            value={value2}
+                            onChange={this.onChange}
+                            options={getFilteredOptions}
+                            title="Async"
+                        />
+                    </div>
+                </div>
             </div>
-          </div>
         )
     }
 }
