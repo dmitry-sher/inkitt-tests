@@ -37,6 +37,8 @@ export default class Select extends Component {
             async: false,
             loading: false
         }
+        this._caches = {}
+
         if (typeof props.options === 'function') this.state.async = true
     }
 
@@ -66,11 +68,16 @@ export default class Select extends Component {
     // simple network emulating stub
     loadAsyncOptions(filter = '') {
         clearTimeout(this._async)
+        if (this._caches[filter]) {
+            this.setState({ loading: false, filteredOptions: this._caches[filter] })
+            return
+        }
         this.setState({ loading: true }, () => {
             const delay = Math.floor(Math.random() * networkDelay)
             this._async = setTimeout(() => {
                 const getFilteredOptions = this.props.options
                 const options = getFilteredOptions(filter)
+                this._caches[filter] = options
                 this.setState({ loading: false, filteredOptions: options })
             }, delay)
         })
