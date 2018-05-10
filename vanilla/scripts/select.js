@@ -15,7 +15,7 @@ function tplStr(tpl, data) {
 function genId() {
     var l = 8
     var a = 'abcdefghjklmnopqrstuvzxyz0123456789'
-    var ret
+    var ret = []
     for (var i = 0; i < l; i++) ret.push(a.substr(Math.floor(Math.random() * a.length), 1))
     return ret.join('')
 }
@@ -24,23 +24,88 @@ var template = [
     '<div id="select-{id}" class="select">',
     '<h4 id="title-{id}">{title}</h4>',
     '<div id="input-div-{id}" class="input">',
-    '<input type="text" name="{id}" id="input-{id}"/>',
+    '<input type="text" name="{id}" id="input-{id}" />',
     '<div id="label-{id}"></div>',
-    '<i class="fa fa-spinner" id="spinner-{id}" />',
+    '<i class="fa fa-spinner" id="spinner-{id}"></i>',
     '<div class="menu" id="menu-{id}"></div>',
     '</div>',
     '</div>'
 ].join('')
 
+// data for emulating loader
+
+var states = [
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'Florida',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming'
+]
+
+var statesOptions = states.map(function(s, i) { return { value: i, text: s } })
+function getFilteredOptions(filter) {
+    var re = new RegExp(escapeRegExp(filter), 'i')
+    return statesOptions.filter(function(option) { return option.text.match(re) })
+}
+
+function escapeRegExp(str) {
+    return str.replace(/[.^$*+?()[{\\|\]-]/g, '\\$&')
+}
+
 function typeaheadSelect(id, config) {
-    var self = this
-    this.el = $$(id)
-    if (!this.el) {
+    var self = {}
+    self.el = $$(id)
+    if (!self.el) {
         console.warn('failed to init typeaheadSelect on ', id)
         return
     }
 
-    this.init = function(config) {
+    self.init = function(config) {
         // set up internals
         self.config = config
         self.id = self.config.id || genId()
@@ -64,14 +129,14 @@ function typeaheadSelect(id, config) {
         setTimeout(self.init2, 0)
     }
 
-    this.setState = function(state, cb) {
+    self.setState = function(state, cb) {
         var keys = Object.keys(state)
         for (var i = 0; i < keys.length; i++) self.state[keys[i]] = state[keys[i]]
         self.stateChanged()
         if (cb) cb()
     }
 
-    this.init2 = function() {
+    self.init2 = function() {
         // set up dom links
         self._label = $$('label-' + self.id)
         self._inputDiv = $$('input-div-' + self.id)
@@ -84,33 +149,92 @@ function typeaheadSelect(id, config) {
         // hide title if necessary
         if (!self.config.title) addClass(self._title, 'hidden')
 
+        // init menu
+        self._menuComponent = typeaheadSelectMenu('menu-' + self.id, {
+            options: self.state.filteredOptions,
+            onChooseOption: self.onChooseOption
+        })
+
         // set up event handlers
         self._label.addEventListener('click', self.onLabelClick)
         self._input.addEventListener('focus', self.onFocus)
         self._input.addEventListener('blur', self.onBlur)
+        self._input.addEventListener('keyup', self.onChange)
+        self._input.addEventListener('change', self.onChange)
+        self._input.addEventListener('keydown', self.onKeyDown)
     }
 
-    this.onLabelClick = function() {
+    self.onLabelClick = function() {
         if (self._input) self._input.focus()
     }
 
-    this.onFocus = function(e) {
-        const opened = !!self.state.value
-        // if (self._menu) this._menu.clearSelectedIndex()
+    self.onFocus = function(e) {
+        var opened = !!self.state.value
+        // if (self._menu) self._menu.clearSelectedIndex()
         self.setState({ focused: true, opened: opened })
     }
 
-    this.onBlur = function(e) {
+    self.onBlur = function(e) {
         clearTimeout(_blurThrottle)
-        _blurThrottle = setTimeout(() =>
-            self.setState({ focused: false, opened: false }, () => {
+        _blurThrottle = setTimeout(function() {
+            self.setState({ focused: false, opened: false }, function() {
                 if (self.config.onClose) self.config.onClose()
             })
-            , _throttleTimeout)
+        }, _throttleTimeout)
     }
 
-    this.stateChanged = function() {
+    self.getOptions = function(filter) {
+        if (!filter) filter = ''
+        var options = self.config.options
+        var optionsArray = options
+        if (filter) {
+            var re = new RegExp(escapeRegExp(filter), 'i')
+            optionsArray = options.filter(function(option) { return option.text.match(re) })
+        }
+        return optionsArray
+    }
+
+    self.onChange = function(e) {
+        var value = e.target.value
+        clearTimeout(_throttle)
+        _throttle = setTimeout(function() { self.onChangeReal(value) }, _throttleTimeout)
+    }
+
+    self.onChangeReal = function(value, opened = true) {
+        if (self.state.value === value) return
+        // if (self._menu) self._menu.clearSelectedIndex()
+        if (self.state.async) {
+            self.setState({
+                value,
+                opened: true
+            }, function() {
+                // if (self.props.onOpen) self.props.onOpen()
+                self.loadAsyncOptions(value)
+            })
+            return
+        }
+
+        self.setState({
+            value,
+            filteredOptions: self.getOptions(value),
+            opened: true
+        }, function() {
+            self._menuComponent.setState({ options: self.state.filteredOptions })
+            self._menuComponent.render()
+            self._menuComponent.openMenu()
+            // if (self.props.onOpen) self.props.onOpen()
+        })
+    }
+
+    self.onChooseOption = function(option) {
+        console.log(option)
+        self.setState({ selectedValue: option.text })
+        // if (this._input) this._input.blur()
+    }
+
+    self.stateChanged = function() {
         var value = self.state.value
+        var selectedValue = self.state.selectedValue
         var filteredOptions = self.state.filteredOptions
         var opened = self.state.opened
         var focused = self.state.focused
@@ -134,8 +258,10 @@ function typeaheadSelect(id, config) {
         self._menu.className = menuClasses.join(' ')
         self._label.className = labelClasses.join(' ')
         self._inputDiv.className = inputClasses.join(' ')
+
+        self._label.innerHTML = selectedValue
     }
 
-    this.init(config)
-    return this
+    self.init(config)
+    return self
 }

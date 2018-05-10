@@ -21,7 +21,7 @@
 	<meta name="twitter:description" content="">
 	<meta name="twitter:image" content="">
 </head>
-<body>
+<body data-id="1">
 	<div class="App">
 		<div class="flexy">
 			<div class="left">
@@ -42,12 +42,14 @@
 	</div>
 
 	<script src="scripts/es5.min.js?cw221"></script>
+	<script src="scripts/menu.js?cw221"></script>
 	<script src="scripts/select.js?cw221"></script>
 	<script src="scripts/startup.js?cw221"></script>
 	<script type="text/javascript">
 	typeaheadSelect('select1', {
 		id: 'sync',
-		title: 'Sync'
+		title: 'Sync',
+		options: statesOptions
     })
 	</script>
 </body>
