@@ -8,6 +8,9 @@
     box-sizing: border-box;
     padding: 1rem; }
 
+.hidden {
+  display: none; }
+
 .select {
   position: relative; }
   .select .input {
@@ -25,8 +28,6 @@
   .select .label {
     position: absolute;
     margin: -1.1rem 0 0 0.2rem; }
-    .select .label.hidden {
-      display: none; }
   .select .menu {
     display: none;
     position: absolute;
@@ -50,9 +51,14 @@
         background: bisque; }
     .select .menu.open {
       display: block; }
+  .select .spinner {
+    position: absolute;
+    margin: -1.1rem 0 0 19rem; }
 
 .spinner {
   animation: rotation 2s infinite linear; }
+  .spinner.hidden {
+    display: none; }
 
 @keyframes rotation {
   from {

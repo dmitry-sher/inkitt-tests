@@ -11,6 +11,10 @@
   }
 }
 
+.hidden {
+  display: none;
+}
+
 .select {
   position: relative;
 
@@ -36,9 +40,6 @@
   .label {
     position: absolute;
     margin: -1.1rem 0 0 0.2rem;
-    &.hidden {
-      display: none;
-    }
   }
 
   .menu {
@@ -71,10 +72,18 @@
       
     }
   }
+
+  .spinner {
+    position: absolute;
+    margin: -1.1rem 0 0 19rem;
+  }
 }
 
 .spinner {
   animation: rotation 2s infinite linear;
+  &.hidden {
+    display: none;
+  }
 }
 
 @keyframes rotation {

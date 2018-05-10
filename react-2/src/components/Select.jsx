@@ -8,6 +8,8 @@ import { escapeRegExp } from '../lib/data'
 //  we show input field for user to start entering
 //  currently selected value is absolutely-positioned overlay. on click we hide it and transfer focus to input
 //  possible values are shown in menu
+//  keyboard nav is handled by menu class
+//  async loading incorporated in this one
 
 let _throttle
 let _blurThrottle
@@ -63,9 +65,10 @@ export default class Select extends Component {
 
     // simple network emulating stub
     loadAsyncOptions(filter = '') {
+        clearTimeout(this._async)
         this.setState({ loading: true }, () => {
             const delay = Math.floor(Math.random() * networkDelay)
-            setTimeout(() => {
+            this._async = setTimeout(() => {
                 const getFilteredOptions = this.props.options
                 const options = getFilteredOptions(filter)
                 this.setState({ loading: false, filteredOptions: options })
@@ -119,7 +122,7 @@ export default class Select extends Component {
         clearTimeout(_blurThrottle)
         _blurThrottle = setTimeout(() =>
             this.setState({ focused: false, opened: false })
-        , _throttleTimeout)
+            , _throttleTimeout)
     }
 
     onOpenMenu = () => this.setState({ opened: true })
@@ -148,34 +151,35 @@ export default class Select extends Component {
         if (opened || focused) inputClasses.push('open')
 
         return (
-          <div className="select">
-            {title && (<h4>{title}</h4>)}
-            <div className={inputClasses.join(' ')}>
-                <input
-                    type="text"
-                    name={name}
-                    onKeyUp={this.onChange}
-                    onChange={this.onChange}
-                    onFocus={this.onFocus}
-                    onBlur={this.onBlur}
-                    onKeyDown={this.onKeyDown}
-                    value={this.search}
-                    ref={c => this._input = c}
+            <div className="select">
+                {title && (<h4>{title}</h4>)}
+                <div className={inputClasses.join(' ')}>
+                    <input
+                        type="text"
+                        name={name}
+                        onKeyUp={this.onChange}
+                        onChange={this.onChange}
+                        onFocus={this.onFocus}
+                        onBlur={this.onBlur}
+                        onKeyDown={this.onKeyDown}
+                        value={this.search}
+                        ref={c => this._input = c}
+                    />
+                </div>
+                <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value && value.text}</div>
+                <Icon icon="spinner" className={['spinner', loading ? '' : 'hidden'].join(' ')} />
+
+                <SelectMenu
+                    onChooseOption={this.onChooseOption}
+                    options={filteredOptions}
+                    opened={opened}
+                    value={value}
+                    loading={loading}
+                    onOpenMenu={this.onOpenMenu}
+                    onClear={this.onClear}
+                    ref={c => this._menu = c}
                 />
             </div>
-            <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value && value.text}</div>
-
-            <SelectMenu
-                onChooseOption={this.onChooseOption}
-                options={filteredOptions}
-                opened={opened}
-                value={value}
-                loading={loading}
-                onOpenMenu={this.onOpenMenu}
-                onClear={this.onClear}
-                ref={c => this._menu = c}
-            />
-          </div>
         )
     }
 }

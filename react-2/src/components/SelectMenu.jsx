@@ -62,11 +62,11 @@ export default class SelectMenu extends Component {
     clearSelectedIndex = () => this.setState({ selectedIndex: -1 })
 
     render() {
-        const { options, opened } = this.props
+        const { options, opened, loading } = this.props
         const { selectedIndex } = this.state
 
         const menuClasses = ['menu']
-        if (opened) menuClasses.push('open')
+        if (opened && !loading) menuClasses.push('open')
 
         return (
             <div className={menuClasses.join(' ')}>
