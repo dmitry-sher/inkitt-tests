@@ -26,7 +26,7 @@ var template = [
     '<div id="input-div-{id}" class="input">',
     '<input type="text" name="{id}" id="input-{id}" />',
     '<div id="label-{id}"></div>',
-    '<i class="fa fa-spinner" id="spinner-{id}"></i>',
+    '<img src="img/loader.gif" class="spinner hidden" id="spinner-{id}"></i>',
     '<div class="menu" id="menu-{id}"></div>',
     '</div>',
     '</div>'
@@ -109,6 +109,7 @@ function typeaheadSelect(id, config) {
         // set up internals
         self.config = config
         self.id = self.config.id || genId()
+        self._caches = {}
         self.data = {
             id: self.id,
             title: config.title
@@ -200,6 +201,12 @@ function typeaheadSelect(id, config) {
         _throttle = setTimeout(function() { self.onChangeReal(value) }, _throttleTimeout)
     }
 
+    self.reinitMenu = function() {
+        self._menuComponent.setState({ options: self.state.filteredOptions })
+        self._menuComponent.render()
+        self._menuComponent.openMenu()
+    }
+
     self.onChangeReal = function(value, opened = true) {
         if (self.state.value === value) return
         // if (self._menu) self._menu.clearSelectedIndex()
@@ -218,11 +225,23 @@ function typeaheadSelect(id, config) {
             value,
             filteredOptions: self.getOptions(value),
             opened: true
-        }, function() {
-            self._menuComponent.setState({ options: self.state.filteredOptions })
-            self._menuComponent.render()
-            self._menuComponent.openMenu()
-            // if (self.props.onOpen) self.props.onOpen()
+        }, self.reinitMenu)
+    }
+
+    self.loadAsyncOptions = function(filter = '') {
+        clearTimeout(self._async)
+        if (self._caches[filter]) {
+            self.setState({ loading: false, filteredOptions: self._caches[filter] }, self.reinitMenu)
+            return
+        }
+        self.setState({ loading: true }, function() {
+            const delay = Math.floor(Math.random() * networkDelay)
+            self._async = setTimeout(function() {
+                const getFilteredOptions = self.config.options
+                const options = getFilteredOptions(filter)
+                self._caches[filter] = options
+                self.setState({ loading: false, filteredOptions: options }, self.reinitMenu)
+            }, delay)
         })
     }
 
@@ -233,14 +252,11 @@ function typeaheadSelect(id, config) {
     }
 
     self.stateChanged = function() {
-        var value = self.state.value
-        var selectedValue = self.state.selectedValue
-        var filteredOptions = self.state.filteredOptions
+        console.log('[select.onStateChange] state = ', JSON.stringify(self.state, 0, 2))
+        var selectedValue = self.state.selectedValue || ''
         var opened = self.state.opened
         var focused = self.state.focused
         var loading = self.state.loading
-        var name = self.config.name
-        var title = self.config.title
 
         var selectClasses = ['select']
         if (opened) selectClasses.push('open')
@@ -254,10 +270,14 @@ function typeaheadSelect(id, config) {
         var inputClasses = ['input']
         if (opened || focused) inputClasses.push('open')
 
+        var spinnerClasses = ['spinner']
+        if (!loading) spinnerClasses.push('hidden')
+
         self._wrapper.className = selectClasses.join(' ')
         self._menu.className = menuClasses.join(' ')
         self._label.className = labelClasses.join(' ')
         self._inputDiv.className = inputClasses.join(' ')
+        self._icon.className = spinnerClasses.join(' ')
 
         self._label.innerHTML = selectedValue
     }
