@@ -1,3 +1,7 @@
+.App.open {
+  padding-bottom: 20rem;
+}
+
 .flexy {
   display: flex;
   flex-direction: row;
@@ -22,6 +26,7 @@
     border: 1px solid black;
     width: 20rem;
     input {
+      box-sizing: border-box;
       width: calc(20rem - 2px);
       opacity: 0;
       border-width: 0;
@@ -96,5 +101,35 @@
       -webkit-transform: rotate(359deg);
       -moz-transform: rotate(359deg);
       transform: rotate(359deg);
+  }
+}
+
+@media all and (max-width: 768px) {
+  .flexy {
+    flex-direction: column;
+    &>div {
+      width: 100%;
+    }
+  }
+
+  .select {
+    font-size: 2rem;
+    .input {
+      width: calc(100% - 1rem);
+      input {
+        font-size: 2rem;
+        width: calc(100% - 2px);
+      }
+    }
+    .label {
+      margin: -2.5rem 0 0 0.2rem;
+    }
+    .menu.open {
+      width: 100%;
+    }
+    .spinner {
+      right: 1.5rem;
+      margin: -2.4rem 0 0 0;
+    }
   }
 }

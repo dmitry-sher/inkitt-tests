@@ -12,7 +12,7 @@ export default class SelectMenu extends Component {
         options: PropTypes.array.isRequired,
         opened: PropTypes.bool.isRequired,
         loading: PropTypes.bool.isRequired,
-        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
         onOpenMenu: PropTypes.func.isRequired,
         onClear: PropTypes.func.isRequired
     }

@@ -8,15 +8,22 @@ import { getFilteredOptions, statesOptions } from './lib/data'
 class App extends Component {
     state = {
         value1: '',
-        value2: ''
+        value2: '',
+        opened: false
     }
 
     onChange = (name, value) => this.setState({ [name]: value })
 
+    onOpen = () => this.setState({ opened: true })
+    onClose = () => this.setState({ opened: false })
+
     render() {
-        const { value1, value2 } = this.state
+        const { value1, value2, opened } = this.state
+        const classes = ['App']
+        if (opened) classes.push('open')
+
         return (
-            <div className="App">
+            <div className={classes.join(' ')}>
                 <div className="flexy">
                     <div className="left">
                         Here's a little example of react-select that i've made.<br />
@@ -35,6 +42,8 @@ class App extends Component {
                             onChange={this.onChange}
                             options={statesOptions}
                             title="Synced"
+                            onOpen={this.onOpen}
+                            onClose={this.onClose}
                         />
 
                         <Select
@@ -43,6 +52,8 @@ class App extends Component {
                             onChange={this.onChange}
                             options={getFilteredOptions}
                             title="Async"
+                            onOpen={this.onOpen}
+                            onClose={this.onClose}
                         />
                     </div>
                 </div>

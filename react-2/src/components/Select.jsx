@@ -20,7 +20,9 @@ export default class Select extends Component {
     static propTypes = {
         name: PropTypes.string.isRequired,
         onChange: PropTypes.func,
-        value: PropTypes.string,
+        onOpen: PropTypes.func,
+        onClose: PropTypes.func,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
         title: PropTypes.string,
         options: PropTypes.oneOfType([PropTypes.array, PropTypes.func])
     }
@@ -96,7 +98,10 @@ export default class Select extends Component {
             this.setState({
                 value,
                 opened: true
-            }, () => this.loadAsyncOptions(value))
+            }, () => {
+                if (this.props.onOpen) this.props.onOpen()
+                this.loadAsyncOptions(value)
+            })
             return
         }
 
@@ -104,6 +109,8 @@ export default class Select extends Component {
             value,
             filteredOptions: this.getOptions(value),
             opened: true
+        }, () => {
+            if (this.props.onOpen) this.props.onOpen()
         })
     }
 
@@ -111,7 +118,9 @@ export default class Select extends Component {
         const { onChange, name } = this.props
         if (onChange) {
             onChange(name, option)
-            this.setState({ opened: false })
+            this.setState({ opened: false }, () => {
+                if (this.props.onClose) this.props.onClose()
+            })
             if (this._input) this._input.blur()
             return
         }
@@ -128,11 +137,15 @@ export default class Select extends Component {
     onBlur = (e) => {
         clearTimeout(_blurThrottle)
         _blurThrottle = setTimeout(() =>
-            this.setState({ focused: false, opened: false })
+            this.setState({ focused: false, opened: false }, () => {
+                if (this.props.onClose) this.props.onClose()
+            })
             , _throttleTimeout)
     }
 
-    onOpenMenu = () => this.setState({ opened: true })
+    onOpenMenu = () => this.setState({ opened: true }, () => {
+        if (this.props.onOpen) this.props.onOpen()
+    })
 
     onClear = () => this.onChangeReal('', false)
 
@@ -148,6 +161,9 @@ export default class Select extends Component {
         const { value, filteredOptions, opened, focused, loading } = this.state
         const { name, title } = this.props
 
+        const selectClasses = ['select']
+        if (opened) selectClasses.push('open')
+
         const menuClasses = ['menu']
         if (opened) menuClasses.push('open')
 
@@ -158,7 +174,7 @@ export default class Select extends Component {
         if (opened || focused) inputClasses.push('open')
 
         return (
-            <div className="select">
+            <div className={selectClasses.join(' ')}>
                 {title && (<h4>{title}</h4>)}
                 <div className={inputClasses.join(' ')}>
                     <input
