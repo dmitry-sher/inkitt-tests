@@ -77,6 +77,7 @@ export default class SelectMenu extends Component {
                         className={i === selectedIndex ? 'selected' : ''}
                     >{option.text}</div>
                 ))}
+                {opened && !loading && !options.length && `no items found`}
             </div>
         )
     }
