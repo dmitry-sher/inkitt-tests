@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import SelectMenu from './SelectMenu'
 import Icon from './Icon'
+import { escapeRegExp } from '../lib/data'
 
 // The arch is simple:
 //  we show input field for user to start entering
@@ -11,28 +12,38 @@ import Icon from './Icon'
 let _throttle
 let _blurThrottle
 const _throttleTimeout = 150
-
-function escapeRegExp(str) {
-    return str.replace(/[.^$*+?()[{\\|\]-]/g, '\\$&')
-}
+const networkDelay = 5000
 
 export default class Select extends Component {
     static propTypes = {
         name: PropTypes.string.isRequired,
         onChange: PropTypes.func,
         value: PropTypes.string,
+        title: PropTypes.string,
         options: PropTypes.oneOfType([PropTypes.array, PropTypes.func])
     }
 
-    state = {
-        opened: false,
-        search: '',
-        value: '',
-        focused: false,
-        filteredOptions: []
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            opened: false,
+            search: '',
+            value: '',
+            focused: false,
+            filteredOptions: [],
+            async: false,
+            loading: false
+        }
+        if (typeof props.options === 'function') this.state.async = true
     }
 
     componentDidMount () {
+        const { async } = this.state
+        if (async) {
+            this.loadAsyncOptions()
+            return
+        }
         this.setState({ filteredOptions: this.getOptions() })
     }
 
@@ -50,6 +61,18 @@ export default class Select extends Component {
         return optionsArray
     }
 
+    // simple network emulating stub
+    loadAsyncOptions(filter = '') {
+        this.setState({ loading: true }, () => {
+            const delay = Math.floor(Math.random() * networkDelay)
+            setTimeout(() => {
+                const getFilteredOptions = this.props.options
+                const options = getFilteredOptions(filter)
+                this.setState({ loading: false, filteredOptions: options })
+            }, delay)
+        })
+    }
+
     onChange = (e) => {
         const { target: { value } } = e
         clearTimeout(_throttle)
@@ -58,17 +81,26 @@ export default class Select extends Component {
 
     onChangeReal = (value, opened = true) => {
         if (this.state.value === value) return
+        if (this._menu) this._menu.clearSelectedIndex()
+        if (this.state.async) {
+            this.setState({
+                value,
+                opened: true
+            }, () => this.loadAsyncOptions(value))
+            return
+        }
+
         this.setState({
             value,
             filteredOptions: this.getOptions(value),
-            opened: true,
-            selectedIndex: -1
+            opened: true
         })
     }
 
     onChooseOption = (option) => {
-        if (this.props.onChange) {
-            this.props.onChange(option)
+        const { onChange, name } = this.props
+        if (onChange) {
+            onChange(name, option)
             this.setState({ opened: false })
             if (this._input) this._input.blur()
             return
@@ -79,7 +111,8 @@ export default class Select extends Component {
 
     onFocus = (e) => {
         const opened = !!this.state.value
-        this.setState({ focused: true, opened, selectedIndex: -1 })
+        if (this._menu) this._menu.clearSelectedIndex()
+        this.setState({ focused: true, opened })
     }
 
     onBlur = (e) => {
@@ -102,7 +135,8 @@ export default class Select extends Component {
     }
 
     render() {
-        const { value, filteredOptions, opened, focused } = this.state
+        const { value, filteredOptions, opened, focused, loading } = this.state
+        const { name, title } = this.props
 
         const menuClasses = ['menu']
         if (opened) menuClasses.push('open')
@@ -115,10 +149,11 @@ export default class Select extends Component {
 
         return (
           <div className="select">
-            <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value && value.text}</div>
+            {title && (<h4>{title}</h4>)}
             <div className={inputClasses.join(' ')}>
                 <input
                     type="text"
+                    name={name}
                     onKeyUp={this.onChange}
                     onChange={this.onChange}
                     onFocus={this.onFocus}
@@ -128,12 +163,14 @@ export default class Select extends Component {
                     ref={c => this._input = c}
                 />
             </div>
+            <div className={labelClasses.join(' ')} onClick={this.onLabelClick}>{value && value.text}</div>
 
             <SelectMenu
                 onChooseOption={this.onChooseOption}
                 options={filteredOptions}
                 opened={opened}
                 value={value}
+                loading={loading}
                 onOpenMenu={this.onOpenMenu}
                 onClear={this.onClear}
                 ref={c => this._menu = c}

@@ -3,71 +3,18 @@ import React, { Component } from 'react'
 import Select from './components/Select.jsx'
 import './App.css'
 import 'font-awesome/css/font-awesome.css'
-
-const states = [
-    'Alabama',
-    'Alaska',
-    'Arizona',
-    'Arkansas',
-    'California',
-    'Colorado',
-    'Connecticut',
-    'Delaware',
-    'Florida',
-    'Georgia',
-    'Hawaii',
-    'Idaho',
-    'Illinois',
-    'Indiana',
-    'Iowa',
-    'Kansas',
-    'Kentucky',
-    'Louisiana',
-    'Maine',
-    'Maryland',
-    'Massachusetts',
-    'Michigan',
-    'Minnesota',
-    'Mississippi',
-    'Missouri',
-    'Montana',
-    'Nebraska',
-    'Nevada',
-    'New Hampshire',
-    'New Jersey',
-    'New Mexico',
-    'New York',
-    'North Carolina',
-    'North Dakota',
-    'Ohio',
-    'Oklahoma',
-    'Oregon',
-    'Pennsylvania',
-    'Rhode Island',
-    'South Carolina',
-    'South Dakota',
-    'Tennessee',
-    'Texas',
-    'Utah',
-    'Vermont',
-    'Virginia',
-    'Washington',
-    'West Virginia',
-    'Wisconsin',
-    'Wyoming'
-]
-
-const statesOptions = states.map((s, i) => ({ value: i, text: s }))
+import { getFilteredOptions, statesOptions } from './lib/data'
 
 class App extends Component {
     state = {
-        value: ''
+        value1: '',
+        value2: ''
     }
 
-    onChange = (value) => this.setState({ value })
+    onChange = (name, value) => this.setState({ [name]: value })
 
     render() {
-        const { value } = this.state
+        const { value1, value2 } = this.state
         return (
           <div className="App">
             <div className="flexy">
@@ -81,10 +28,19 @@ class App extends Component {
               </div>
               <div className="right">
                 <Select
-                  name="form-field-name"
-                  value={value}
+                  name="value1"
+                  value={value1}
                   onChange={this.onChange}
                   options={statesOptions}
+                  title="Synced"
+                />
+
+                <Select
+                  name="value2"
+                  value={value2}
+                  onChange={this.onChange}
+                  options={getFilteredOptions}
+                  title="Async"
                 />
               </div>
             </div>

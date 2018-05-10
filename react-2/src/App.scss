@@ -35,7 +35,7 @@
 
   .label {
     position: absolute;
-    margin: 0.2rem 0 0 0.2rem;
+    margin: -1.1rem 0 0 0.2rem;
     &.hidden {
       display: none;
     }
@@ -44,6 +44,18 @@
   .menu {
     display: none;
     position: absolute;
+    background: #fff;
+    -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.49);
+    -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.49);
+    box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.49);
+    z-index: 5;
+    padding-left: 0.3rem;
+    box-sizing: border-box;
+    border-left: 1px solid #bbb;
+    max-height: 20rem;
+    width: 20rem;
+    overflow-y: scroll;
+
     &>div {
       cursor: pointer;
       border-bottom: 1px dashed bisque;
@@ -56,9 +68,7 @@
     }
     &.open {
       display: block;
-      max-height: 20rem;
-      width: 20rem;
-      overflow-y: scroll;
+      
     }
   }
 }

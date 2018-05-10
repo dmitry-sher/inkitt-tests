@@ -59,6 +59,8 @@ export default class SelectMenu extends Component {
         console.log('onkeydown ', e.keyCode)
     }
 
+    clearSelectedIndex = () => this.setState({ selectedIndex: -1 })
+
     render() {
         const { options, opened } = this.props
         const { selectedIndex } = this.state
