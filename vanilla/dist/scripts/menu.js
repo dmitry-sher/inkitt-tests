@@ -30,7 +30,7 @@ function typeaheadSelectMenu(id, config) {
     }
 
     self.onClick = function(e) {
-        console.log(e.target)
+        // console.log(e.target)
         var idx = e.target.getAttribute('data-idx')
         if (typeof idx == 'undefined') return
         var opt = self.state.options[+idx]

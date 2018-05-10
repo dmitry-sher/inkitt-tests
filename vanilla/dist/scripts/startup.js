@@ -87,7 +87,7 @@ function windowHeight() {
 function addClass(el, cls) {
     if (!el || !cls) return
     var classStr = el.className
-    var classes = classStr.split(' ').filter(c => !!c)
+    var classes = classStr.split(' ').filter(function(c) { return !!c })
     if (classes.indexOf(cls) != -1) return
     classes.push(cls)
     el.className = classes.join(' ')
@@ -96,7 +96,7 @@ function addClass(el, cls) {
 function removeClass(el, cls) {
     if (!el || !cls) return
     var classStr = el.className
-    var classes = classStr.split(' ').filter(c => !!c)
+    var classes = classStr.split(' ').filter(function(c) { return !!c })
     var idx = classes.indexOf(cls)
     if (idx == -1) return
     classes.splice(idx, 1)

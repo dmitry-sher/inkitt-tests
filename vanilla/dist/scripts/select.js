@@ -207,12 +207,13 @@ function typeaheadSelect(id, config) {
         self._menuComponent.openMenu()
     }
 
-    self.onChangeReal = function(value, opened = true) {
+    self.onChangeReal = function(value, opened) {
+        if (!opened) opened = true
         if (self.state.value === value) return
         // if (self._menu) self._menu.clearSelectedIndex()
         if (self.state.async) {
             self.setState({
-                value,
+                value: value,
                 opened: true
             }, function() {
                 // if (self.props.onOpen) self.props.onOpen()
@@ -222,13 +223,14 @@ function typeaheadSelect(id, config) {
         }
 
         self.setState({
-            value,
+            value: value,
             filteredOptions: self.getOptions(value),
             opened: true
         }, self.reinitMenu)
     }
 
-    self.loadAsyncOptions = function(filter = '') {
+    self.loadAsyncOptions = function(filter) {
+        if (!filter) filter = ''
         clearTimeout(self._async)
         if (self._caches[filter]) {
             self.setState({ loading: false, filteredOptions: self._caches[filter] }, self.reinitMenu)
@@ -246,13 +248,10 @@ function typeaheadSelect(id, config) {
     }
 
     self.onChooseOption = function(option) {
-        console.log(option)
         self.setState({ selectedValue: option.text })
-        // if (this._input) this._input.blur()
     }
 
     self.stateChanged = function() {
-        console.log('[select.onStateChange] state = ', JSON.stringify(self.state, 0, 2))
         var selectedValue = self.state.selectedValue || ''
         var opened = self.state.opened
         var focused = self.state.focused
