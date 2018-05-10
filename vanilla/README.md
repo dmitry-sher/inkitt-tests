@@ -5,6 +5,7 @@ First make sure node/npm is installed on your computer.<br/>
 Then install modules:
 ```
 npm install
+npm install -g gulp
 ```
 
 ### How to Use
