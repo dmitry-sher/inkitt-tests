@@ -1,4 +1,4 @@
-## OYSTER
+## Typeahead-alike vanilla js project
 
 ### Dependencies
 First make sure node/npm is installed on your computer.<br/>
